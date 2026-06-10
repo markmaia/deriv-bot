@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deriv MT5 AI Trading Bot - CRT + Smart Money + ML</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(71, 85, 105, 0.5);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #34d399, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .header p {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        select, button {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 10px 20px;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        select:hover, button:hover {
+            background: #334155;
+            border-color: #3b82f6;
+        }
+        
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 20px;
+        }
+        
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Cards */
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            color: #94a3b8;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            border-left: 3px solid #3b82f6;
+            padding-left: 12px;
+        }
+        
+        /* Signal Display */
+        .signal-box {
+            text-align: center;
+            padding: 30px;
+            border-radius: 16px;
+            font-size: 42px;
+            font-weight: bold;
+        }
+        
+        .signal-buy {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .signal-sell {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        .signal-neutral {
+            background: linear-gradient(135deg, #4b5563, #6b7280);
+            color: white;
+        }
+        
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: #0f172a;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        
+        .stat-value {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 5px;
+            font-family: monospace;
+        }
+        
+        /* Progress bars */
+        .progress-section {
+            margin-bottom: 15px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #1e293b;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .fill-green { background: linear-gradient(90deg, #059669, #10b981); }
+        .fill-red { background: linear-gradient(90deg, #dc2626, #ef4444); }
+        
+        /* Pattern badges */
+        .pattern-badge {
+            display: inline-block;
+            background: #1e293b;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #34d399;
+            margin: 4px;
+            border: 1px solid #334155;
+        }
+        
+        .pattern-badge-ml {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        /* Digit grid */
+        .digit-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .digit-cell {
+            text-align: center;
+            padding: 10px 5px;
+            background: #0f172a;
+            border-radius: 10px;
+            border: 1px solid #1e293b;
+        }
+        
+        .digit-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .digit-percent {
+            font-size: 11px;
+            color: #34d399;
+        }
+        
+        /* Status */
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online {
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-offline {
+            background: #ef4444;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .reasoning-box {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 15px;
+            border: 1px solid #1e293b;
+        }
+        
+        .reasoning-text {
+            color: #94a3b8;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .text-center { text-align: center; }
+        .mt-2 { margin-top: 8px; }
+        .mb-2 { margin-bottom: 8px; }
+        .text-sm { font-size: 12px; }
+        .text-xs { font-size: 10px; }
+        .font-mono { font-family: monospace; }
+        .font-bold { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="flex-between" style="flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h1>⚡ Deriv MT5 AI Trading Bot</h1>
+                    <p>CRT + Smart Money + Pattern Recognition + Machine Learning</p>
+                </div>
+                <div class="header-controls">
+                    <select id="symbolSelect">
+                        <option value="R_10">📊 Volatility 10 Index</option>
+                        <option value="R_25">📊 Volatility 25 Index</option>
+                        <option value="R_50">📊 Volatility 50 Index</option>
+                        <option value="R_75" selected>📊 Volatility 75 Index</option>
+                        <option value="R_100">📊 Volatility 100 Index</option>
+                    </select>
+                    <div>
+                        <span class="status-dot" id="statusDot"></span>
+                        <span id="statusText" style="color: #94a3b8;">Connecting...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid">
+            <!-- Left Column -->
+            <div>
+                <!-- Current Signal Card -->
+                <div class="card">
+                    <div class="card-title">🎯 CURRENT SIGNAL</div>
+                    <div id="signalBox" class="signal-box signal-neutral">ANALYZING</div>
+                    <div class="reasoning-box">
+                        <div class="reasoning-text" id="reasoning">Waiting for market data...</div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">🛑 STOP LOSS</div>
+                            <div class="stat-value" id="stopLoss">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">🎯 TAKE PROFIT</div>
+                            <div class="stat-value" id="takeProfit">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">📈 RISK:REWARD</div>
+                            <div class="stat-value" id="riskReward">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">💪 CONFIDENCE</div>
+                            <div class="stat-value" id="confidence">--%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strategy Scores Card -->
+                <div class="card">
+                    <div class="card-title">⚖️ STRATEGY SCORES</div>
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span style="color: #10b981;">📈 BUY Score</span>
+                            <span id="buyScore" style="color: #10b981; font-weight: bold;">0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="buyBar" class="progress-fill fill-green" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span style="color: #ef4444;">📉 SELL Score</span>
+                            <span id="sellScore" style="color: #ef4444; font-weight: bold;">0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="sellBar" class="progress-fill fill-red" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ML Status Card -->
+                <div class="card">
+                    <div class="card-title">🤖 MACHINE LEARNING STATUS</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">ML ACTIVE</div>
+                            <div class="stat-value" id="mlActive">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">ML SIGNAL</div>
+                            <div class="stat-value" id="mlSignal">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">ML CONFIDENCE</div>
+                            <div class="stat-value" id="mlConfidence">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">MODEL</div>
+                            <div class="stat-value" style="font-size: 11px;">RF+XGBoost</div>
+                        </div>
+                    </div>
+                    <button onclick="retrainML()" style="width: 100%; margin-top: 12px;">🔄 Retrain ML Models</button>
+                </div>
+
+                <!-- Market Data Card -->
+                <div class="card">
+                    <div class="card-title">📊 MARKET DATA</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">💵 CURRENT PRICE</div>
+                            <div class="stat-value" id="price">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">📉 RSI (14)</div>
+                            <div class="stat-value" id="rsi">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">🔍 MARKET PHASE</div>
+                            <div class="stat-value" id="phase" style="font-size: 12px;">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">🕯️ CANDLES</div>
+                            <div class="stat-value" id="candleCount">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                <!-- Detected Patterns Card -->
+                <div class="card">
+                    <div class="card-title">🔍 DETECTED PATTERNS</div>
+                    <div id="patternsList" style="min-height: 120px;">
+                        <span style="color: #64748b; font-size: 13px;">Waiting for data...</span>
+                    </div>
+                </div>
+
+                <!-- Digit Distribution Card -->
+                <div class="card">
+                    <div class="card-title">🔢 LAST DIGIT DISTRIBUTION</div>
+                    <div class="text-sm" style="color: #64748b; margin-bottom: 10px;">Based on last 50 candles</div>
+                    <div id="digitGrid" class="digit-grid">
+                        <div style="grid-column: span 10; text-align: center; color: #64748b;">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Active Strategies Card -->
+                <div class="card">
+                    <div class="card-title">🧠 ACTIVE STRATEGIES</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <span class="pattern-badge">📐 Candle Range Theory</span>
+                        <span class="pattern-badge">💀 Kiss of Death</span>
+                        <span class="pattern-badge">🏦 Order Blocks</span>
+                        <span class="pattern-badge">⚡ Fair Value Gaps</span>
+                        <span class="pattern-badge">📊 Supply & Demand</span>
+                        <span class="pattern-badge">📈 Fibonacci</span>
+                        <span class="pattern-badge">🤖 Random Forest</span>
+                        <span class="pattern-badge">🚀 XGBoost</span>
+                        <span class="pattern-badge">🕯️ 50+ Patterns</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch status from backend
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                // Update signal display
+                const signal = data.signal;
+                const signalBox = document.getElementById('signalBox');
+                signalBox.className = 'signal-box';
+                if (signal === 'BUY') {
+                    signalBox.className += ' signal-buy';
+                    signalBox.innerHTML = '📈 BUY';
+                } else if (signal === 'SELL') {
+                    signalBox.className += ' signal-sell';
+                    signalBox.innerHTML = '📉 SELL';
+                } else {
+                    signalBox.className += ' signal-neutral';
+                    signalBox.innerHTML = '⏸ NEUTRAL';
+                }
+                
+                document.getElementById('reasoning').innerHTML = data.reasoning || 'Analyzing market conditions...';
+                document.getElementById('stopLoss').innerHTML = data.stop_loss?.toFixed(5) || '--';
+                document.getElementById('takeProfit').innerHTML = data.take_profit?.toFixed(5) || '--';
+                document.getElementById('riskReward').innerHTML = data.risk_reward?.toFixed(2) || '--';
+                document.getElementById('confidence').innerHTML = `${data.confidence?.toFixed(1) || 0}%`;
+                document.getElementById('price').innerHTML = data.price?.toFixed(5) || '--';
+                document.getElementById('rsi').innerHTML = data.technical?.rsi?.toFixed(1) || '--';
+                document.getElementById('phase').innerHTML = data.market_phase || '--';
+                document.getElementById('candleCount').innerHTML = data.candles || 0;
+                
+                // ML Status
+                document.getElementById('mlActive').innerHTML = data.ml_active ? '✅ ACTIVE' : '⏳ TRAINING';
+                document.getElementById('mlSignal').innerHTML = data.ml_signal || '--';
+                document.getElementById('mlConfidence').innerHTML = data.ml_confidence ? `${data.ml_confidence.toFixed(0)}%` : '--';
+                
+                // Connection status
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                if (data.is_connected) {
+                    statusDot.className = 'status-dot status-online';
+                    statusText.innerHTML = 'Connected to Deriv';
+                } else {
+                    statusDot.className = 'status-dot status-offline';
+                    statusText.innerHTML = 'Connecting...';
+                }
+                
+                // Strategy scores with bars
+                const scores = data.strategy_scores || {};
+                const buyScore = scores.BUY || 0;
+                const sellScore = scores.SELL || 0;
+                const total = buyScore + sellScore;
+                
+                document.getElementById('buyScore').innerHTML = buyScore.toFixed(1);
+                document.getElementById('sellScore').innerHTML = sellScore.toFixed(1);
+                
+                const buyPercent = total > 0 ? (buyScore / total) * 100 : 0;
+                const sellPercent = total > 0 ? (sellScore / total) * 100 : 0;
+                document.getElementById('buyBar').style.width = `${buyPercent}%`;
+                document.getElementById('sellBar').style.width = `${sellPercent}%`;
+                
+                // Patterns
+                const patternsList = document.getElementById('patternsList');
+                if (data.patterns && data.patterns.length > 0) {
+                    patternsList.innerHTML = data.patterns.slice(0, 12).map(p => 
+                        `<span class="pattern-badge">🔍 ${p}</span>`
+                    ).join('');
+                } else {
+                    patternsList.innerHTML = '<span style="color: #64748b; font-size: 13px;">No patterns detected yet. Waiting for more data...</span>';
+                }
+                
+                // Digit distribution
+                const digitStats = data.digit_stats || [];
+                const digitGrid = document.getElementById('digitGrid');
+                if (digitStats.length > 0) {
+                    digitGrid.innerHTML = digitStats.map(stat => `
+                        <div class="digit-cell">
+                            <div class="digit-number">${stat.digit}</div>
+                            <div class="digit-percent">${stat.percentage?.toFixed(1)}%</div>
+                            <div class="digit-count" style="font-size: 10px; color: #64748b;">${stat.count}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    digitGrid.innerHTML = '<div style="grid-column: span 10; text-align: center; color: #64748b;">Collecting data...</div>';
+                }
+                
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('statusText').innerHTML = 'Server error';
+            }
+        }
+
+        // Change symbol
+        async function changeSymbol() {
+            const symbol = document.getElementById('symbolSelect').value;
+            try {
+                await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol: symbol })
+                });
+                document.getElementById('signalBox').className = 'signal-box signal-neutral';
+                document.getElementById('signalBox').innerHTML = 'ANALYZING';
+                document.getElementById('reasoning').innerHTML = 'Switching symbol, please wait...';
+                document.getElementById('patternsList').innerHTML = '<span style="color: #64748b;">Resetting data...</span>';
+                setTimeout(fetchStatus, 2000);
+            } catch (error) {
+                console.error('Symbol change error:', error);
+            }
+        }
+        
+        // Retrain ML
+        async function retrainML() {
+            try {
+                const response = await fetch('/api/ml/retrain', { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    alert('ML models retrained successfully!');
+                } else {
+                    alert('ML retrain failed. Make sure scikit-learn is installed.');
+                }
+            } catch (error) {
+                alert('Error retraining ML: ' + error.message);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('symbolSelect').addEventListener('change', changeSymbol);
+
+        // Initialize
+        fetchStatus();
+        setInterval(fetchStatus, 2000);
+    </script>
+</body>
+</html>
