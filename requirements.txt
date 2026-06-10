@@ -1,1 +1,7 @@
 websocket-client>=1.8.0,<2.0.0
+flask
+flask-cors
+websocket-client
+numpy
+scikit-learn
+xgboost
